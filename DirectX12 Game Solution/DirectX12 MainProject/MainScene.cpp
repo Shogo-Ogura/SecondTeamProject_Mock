@@ -21,6 +21,11 @@ void MainScene::Initialize()
     //変数を初期化（具体的な数値を設定する）
     //サウンドを読み込んだりする
 
+    positionX = 600.0f;
+    positionY = 55.0f;
+
+    expansionX = 1.0f;
+    expansionY = 1.0f;
 
 }
 
@@ -53,6 +58,12 @@ void MainScene::LoadAssets()
 
 
     // グラフィックリソースの初期化処理
+
+    bgTestSprite = DX9::Sprite::CreateFromFile(DXTK->Device9, L"bgTestSprite.png");
+    proteinSprite = DX9::Sprite::CreateFromFile(DXTK->Device9, L"protein.png");
+
+    camera->SetPerspectiveFieldOfView(XM_PIDIV4, 16.0f / 9.0f, 1.0f, 10000.0f);
+
 }
 
 // Releasing resources required for termination.
@@ -88,6 +99,10 @@ NextScene MainScene::Update(const float deltaTime)
     // TODO: Add your game logic here.
     //ゲームを動かすプログラムを記述する
 
+    positionY += 7.5f;
+
+    expansionX += 2.0f * deltaTime;
+    expansionY += 2.0f * deltaTime;
     
 
     return NextScene::Continue;
@@ -106,7 +121,37 @@ void MainScene::Render()
 
     // (ここに2D描画の処理が入る)     // 手順5
 
-    
+    //DX9::SpriteBatch->Draw(bgTestSprite.Get(),
+    //    SimpleMath::Vector3(640.0f, 360.0f, 0.0f),
+    //    Rect(0, 0, 1280, 720),
+    //    DX9::Colors::RGBA(255, 255, 255, 255),
+    //    SimpleMath::Vector3(XMConvertToRadians(45.0f), 0, 0),
+    //    SimpleMath::Vector3(640.0f, 360.0f, 0.0f),
+    //    SimpleMath::Vector2(1, 1)
+    //);
+
+    //DX9::SpriteBatch->ResetTransform();
+    DX9::SpriteBatch->DrawSimple(bgTestSprite.Get(), SimpleMath::Vector3(0, 0, 0));
+
+    DX9::SpriteBatch->Draw(proteinSprite.Get(),
+        SimpleMath::Vector3(positionX, positionY, 0.0f),
+        Rect(0, 0, 110, 110),
+        DX9::Colors::RGBA(255, 255, 255, 255),
+        SimpleMath::Vector3(0, 0, 0),
+        SimpleMath::Vector3(55.0f,55.0f,0.0f),
+        SimpleMath::Vector2(expansionX, expansionY)
+    );
+
+        /*DX9::SpriteBatch->Draw(
+    SPRITE型の変数.Get(),
+    SimpleMath::Vector3(x座標, y座標, 重なり方),
+    Rect(転送元左上x, 転送元左上y, 転送元右下x, 転送元右下y),
+    DX9::Colors::RGBA(カラーマスクR, カラーマスクG, カラーマスクB, 透明値),
+    SimpleMath::Vector3(x回転角, y回転角, z回転角),
+    SimpleMath::Vector3(原点x座標, 原点y座標, 原点z座標),
+    拡大縮小値 または SimpleMath::Vector2(x拡大縮小値, y拡大縮小値)
+);*/
+
 
     DX9::SpriteBatch->End();          // 手順6
     DXTK->Direct3D9->EndScene();      // 手順7

@@ -41,6 +41,12 @@ private:
 
     // •Ï”‚ÌéŒ¾
 
-    
+    DX9::SPRITE bgTestSprite;
+    DX9::SPRITE proteinSprite;
+
+    float positionX, positionY;
+    float expansionX, expansionY;
+
+    DX9::CAMERA camera;
 
 };
