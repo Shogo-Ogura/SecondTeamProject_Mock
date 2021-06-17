@@ -21,11 +21,21 @@ void MainScene::Initialize()
     //変数を初期化（具体的な数値を設定する）
     //サウンドを読み込んだりする
 
-    positionX = 600.0f;
-    positionY = 55.0f;
+    carpPositionX = 600.0f;
+    carpPositionY = 55.0f;
 
-    expansionX = 1.0f;
-    expansionY = 1.0f;
+    carpExpansionX = 1.0f;
+    carpExpansionY = 1.0f;
+
+    treePositionX = 400.0f;
+    treePositionY = 20.0f;
+    treeExpansionX = 1.0f;
+    treeExpansionY = 1.0f;
+
+    treePosition2X = 600.0f;
+    treePosition2Y = -200.0f;
+    treeExpansion2X = 1.0f;
+    treeExpansion2Y = 1.0f;
 
 }
 
@@ -59,8 +69,9 @@ void MainScene::LoadAssets()
 
     // グラフィックリソースの初期化処理
 
-    bgTestSprite = DX9::Sprite::CreateFromFile(DXTK->Device9, L"bgTestSprite.png");
+    bgTestSprite = DX9::Sprite::CreateFromFile(DXTK->Device9, L"bgTestSprite2.png");
     proteinSprite = DX9::Sprite::CreateFromFile(DXTK->Device9, L"protein.png");
+    treeSprite = DX9::Sprite::CreateFromFile(DXTK->Device9, L"tree.png");
 
     camera->SetPerspectiveFieldOfView(XM_PIDIV4, 16.0f / 9.0f, 1.0f, 10000.0f);
 
@@ -99,10 +110,24 @@ NextScene MainScene::Update(const float deltaTime)
     // TODO: Add your game logic here.
     //ゲームを動かすプログラムを記述する
 
-    positionY += 7.5f;
+    carpPositionY += 7.5f;
 
-    expansionX += 2.0f * deltaTime;
-    expansionY += 2.0f * deltaTime;
+    carpExpansionX += 2.0f * deltaTime;
+    carpExpansionY += 2.0f * deltaTime;
+    
+
+    treePositionX -= 7.0f;
+    treePositionY += 8.0f;
+    treeExpansionX += 2.0f * deltaTime;
+    treeExpansionY += 2.0f * deltaTime;
+    
+
+    treePosition2X -= 7.0f;
+    treePosition2Y += 8.0f;
+    if (treePosition2Y >= -50) {
+        treeExpansion2X += 2.0f * deltaTime;
+        treeExpansion2Y += 2.0f * deltaTime;
+    }
     
 
     return NextScene::Continue;
@@ -132,14 +157,36 @@ void MainScene::Render()
 
     //DX9::SpriteBatch->ResetTransform();
     DX9::SpriteBatch->DrawSimple(bgTestSprite.Get(), SimpleMath::Vector3(0, 0, 0));
+    DX9::SpriteBatch->Draw(treeSprite.Get(),
+        SimpleMath::Vector3(treePositionX, treePositionY, 0.0f),
+        Rect(0, 0, 110, 110),
+        DX9::Colors::RGBA(255, 255, 255, 255),
+        SimpleMath::Vector3(0, 0, 0),
+        SimpleMath::Vector3(40.0f, 55.0f, 0.0f),
+        SimpleMath::Vector2(treeExpansionX, treeExpansionY)
+    );
+
+    DX9::SpriteBatch->ResetTransform();
+
+    DX9::SpriteBatch->Draw(treeSprite.Get(),
+        SimpleMath::Vector3(treePosition2X, treePosition2Y, 0.0f),
+        Rect(0, 0, 110, 110),
+        DX9::Colors::RGBA(255, 255, 255, 255),
+        SimpleMath::Vector3(0, 0, 0),
+        SimpleMath::Vector3(40.0f, 55.0f, 0.0f),
+        SimpleMath::Vector2(treeExpansion2X, treeExpansion2Y)
+    );
+
+    DX9::SpriteBatch->ResetTransform();
+
 
     DX9::SpriteBatch->Draw(proteinSprite.Get(),
-        SimpleMath::Vector3(positionX, positionY, 0.0f),
+        SimpleMath::Vector3(carpPositionX, carpPositionY, 0.0f),
         Rect(0, 0, 110, 110),
         DX9::Colors::RGBA(255, 255, 255, 255),
         SimpleMath::Vector3(0, 0, 0),
         SimpleMath::Vector3(55.0f,55.0f,0.0f),
-        SimpleMath::Vector2(expansionX, expansionY)
+        SimpleMath::Vector2(carpExpansionX, carpExpansionY)
     );
 
         /*DX9::SpriteBatch->Draw(

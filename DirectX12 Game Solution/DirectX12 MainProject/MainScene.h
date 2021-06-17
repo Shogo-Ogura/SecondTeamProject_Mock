@@ -42,10 +42,22 @@ private:
     // ïœêîÇÃêÈåæ
 
     DX9::SPRITE bgTestSprite;
-    DX9::SPRITE proteinSprite;
 
-    float positionX, positionY;
-    float expansionX, expansionY;
+    DX9::SPRITE proteinSprite;
+    float carpPositionX, carpPositionY;
+    float carpExpansionX, carpExpansionY;
+
+
+    DX9::SPRITE treeSprite;
+    float treePositionX;
+    float treePositionY;
+    float treeExpansionX;
+    float treeExpansionY;
+
+    float treePosition2X;
+    float treePosition2Y;
+    float treeExpansion2X;
+    float treeExpansion2Y;
 
     DX9::CAMERA camera;
 
