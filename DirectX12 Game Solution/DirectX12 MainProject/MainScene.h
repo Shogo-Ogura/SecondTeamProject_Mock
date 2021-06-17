@@ -41,24 +41,20 @@ private:
 
     // ïœêîÇÃêÈåæ
 
+    //îwåi
     DX9::SPRITE bgTestSprite;
+    float bgPositionX;
 
-    DX9::SPRITE proteinSprite;
-    float carpPositionX, carpPositionY;
-    float carpExpansionX, carpExpansionY;
+    //ÉvÉåÉCÉÑÅ[
+    DX9::SPRITE catfishTestSprite;
+    
+    float playerPositionX, playerPositionY;
 
 
-    DX9::SPRITE treeSprite;
-    float treePositionX;
-    float treePositionY;
-    float treeExpansionX;
-    float treeExpansionY;
+    //è·äQï®
+    DX9::SPRITE rockTestSprite;
+    float rockPositionX,rockPositionY;
+    
 
-    float treePosition2X;
-    float treePosition2Y;
-    float treeExpansion2X;
-    float treeExpansion2Y;
-
-    DX9::CAMERA camera;
 
 };
