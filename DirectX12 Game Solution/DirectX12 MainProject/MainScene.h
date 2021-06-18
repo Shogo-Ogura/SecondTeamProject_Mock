@@ -46,15 +46,38 @@ private:
     float bgPositionX;
 
     //プレイヤー
+    //金魚
+    DX9::SPRITE goldfishTestSprite;
+
+    //ナマズ
     DX9::SPRITE catfishTestSprite;
-    
+
+    //鯉
+    DX9::SPRITE carpTestSprite;
+
+    //プレイヤー位置
     float playerPositionX, playerPositionY;
 
 
     //障害物
-    DX9::SPRITE rockTestSprite;
-    float rockPositionX,rockPositionY;
-    
+    //鳥
+    DX9::SPRITE birdTestSprite;
+    float birdPositionX, birdPositionY;
 
+    //岩(大)
+    DX9::SPRITE bigRockTestSprite;
+    float bigRockPositionX,bigRockPositionY;
+    
+    //岩(小)
+    DX9::SPRITE smallRockTestSprite;
+    float smallRockPositionX, smallRockPositionY;
+
+    //虫
+    DX9::SPRITE wormTestSprite;
+    float wormPositionX, wormPositionY;
+
+    //木
+    DX9::SPRITE woodTestSprite;
+    float woodPositionX, woodPositionY;
 
 };

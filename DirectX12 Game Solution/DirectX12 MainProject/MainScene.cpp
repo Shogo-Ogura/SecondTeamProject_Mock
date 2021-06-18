@@ -32,8 +32,8 @@ void MainScene::Initialize()
 
     //障害物
     //岩
-    rockPositionX = 1500;
-    rockPositionY = 300;
+    bigRockPositionX = 1500;
+    bigRockPositionY = 300;
 
 }
 
@@ -72,12 +72,33 @@ void MainScene::LoadAssets()
     
     
     //プレイヤー
-    catfishTestSprite = DX9::Sprite::CreateFromFile(DXTK->Device9, L"testCatfishSprite.png");
+    //金魚
+    goldfishTestSprite = DX9::Sprite::CreateFromFile(DXTK->Device9, L"goldfishTestSprite.png");
+
+    //ナマズ
+    catfishTestSprite = DX9::Sprite::CreateFromFile(DXTK->Device9, L"catfishTestSprite.png");
+
+    //鯉
+    carpTestSprite = DX9::Sprite::CreateFromFile(DXTK->Device9, L"carpTestSprite.png");
 
     
     //障害物
-    //岩
-    rockTestSprite = DX9::Sprite::CreateFromFile(DXTK->Device9, L"testRockSprite.png");
+    //鳥
+    birdTestSprite = DX9::Sprite::CreateFromFile(DXTK->Device9, L"kingfisherTestSprite.png");
+
+    //岩(大)
+    bigRockTestSprite = DX9::Sprite::CreateFromFile(DXTK->Device9, L"bigRockTestSprite.png");
+
+    //岩(小)
+    smallRockTestSprite = DX9::Sprite::CreateFromFile(DXTK->Device9, L"smallRockTestSprite.png");
+
+    //虫
+    wormTestSprite = DX9::Sprite::CreateFromFile(DXTK->Device9, L"wormTestSprite.png");
+
+    //木
+    woodTestSprite = DX9::Sprite::CreateFromFile(DXTK->Device9, L"woodTestSprite.png");
+
+
 }
 
 // Releasing resources required for termination.
@@ -135,6 +156,10 @@ NextScene MainScene::Update(const float deltaTime)
     {
         playerPositionX += 10;
     }
+    if (DXTK->KeyState->A)
+    {
+        playerPositionX -= 10;
+    }
     if (DXTK->KeyState->W)
     {
         playerPositionY -= 10;
@@ -149,6 +174,10 @@ NextScene MainScene::Update(const float deltaTime)
     {
         playerPositionX += 10;
     }
+    if (DXTK->GamePadState[0].IsDPadLeftPressed())
+    {
+        playerPositionX -= 10;
+    }
     if (DXTK->GamePadState[0].IsDPadUpPressed())
     {
         playerPositionY -= 10;
@@ -161,18 +190,18 @@ NextScene MainScene::Update(const float deltaTime)
 
     //障害物
     //岩
-    rockPositionX -= 10;
-    if (rockPositionX <= 500)
+    bigRockPositionX -= 10;
+    if (bigRockPositionX <= 500)
     {
-        rockPositionX = 1500;
+        bigRockPositionX = 1500;
     }
 
     //当たり判定
-    if (!(playerPositionX > rockPositionX + 237.0f || playerPositionX + 265.0f < rockPositionX ||
-        playerPositionY > rockPositionY + 200.0f || playerPositionY + 164.0f < rockPositionY)) 
+    /*if (!(playerPositionX > bigRockPositionX + 237.0f || playerPositionX + 265.0f < bigRockPositionX ||
+        playerPositionY > bigRockPositionY + 200.0f || playerPositionY + 164.0f < bigRockPositionY)) 
     {
-        rockPositionX = 1500;
-    }
+        bigRockPositionX = 1500;
+    }*/
 
 
     return NextScene::Continue;
@@ -196,12 +225,30 @@ void MainScene::Render()
 
 
     //プレイヤー
+    //金魚
+    DX9::SpriteBatch->DrawSimple(goldfishTestSprite.Get(), SimpleMath::Vector3(0, 0, 0));
+    //ナマズ
     DX9::SpriteBatch->DrawSimple(catfishTestSprite.Get(), SimpleMath::Vector3(playerPositionX, playerPositionY, 0));
+    //鯉
+    DX9::SpriteBatch->DrawSimple(carpTestSprite.Get(), SimpleMath::Vector3(0, 0, 0));
 
 
     //障害物
-    //岩
-    DX9::SpriteBatch->DrawSimple(rockTestSprite.Get(), SimpleMath::Vector3(rockPositionX, rockPositionY, 0));
+    //鳥 
+    DX9::SpriteBatch->DrawSimple(birdTestSprite.Get(), SimpleMath::Vector3(0, 0, 0));
+   
+    //岩(大)
+    DX9::SpriteBatch->DrawSimple(bigRockTestSprite.Get(), SimpleMath::Vector3(bigRockPositionX, bigRockPositionY, 0));
+    
+    //岩(小)
+    DX9::SpriteBatch->DrawSimple(smallRockTestSprite.Get(), SimpleMath::Vector3(0, 0, 0));
+
+    //虫
+    DX9::SpriteBatch->DrawSimple(wormTestSprite.Get(), SimpleMath::Vector3(0, 0, 0));
+
+    //木
+    DX9::SpriteBatch->DrawSimple(woodTestSprite.Get(), SimpleMath::Vector3(0, 0, 0));
+
 
 
     DX9::SpriteBatch->End();          // 手順6
