@@ -22,7 +22,7 @@ void MainScene::Initialize()
     //サウンドを読み込んだりする
     
     //背景
-    bgPositionX = 0;
+    bgPositionX = 0.0f;
 
 
     //プレイヤー
@@ -135,57 +135,11 @@ NextScene MainScene::Update(const float deltaTime)
     //ゲームを動かすプログラムを記述する
 
     //背景
-    bgPositionX -= 15;
-    if (bgPositionX <= -2560)
-    {
-        bgPositionX = 0;
-    }
+    bgMoveUpdate(deltaTime);
     
 
     //プレイヤー
-    //移動範囲
-    if (playerPositionX <= 0)
-    {
-        playerPositionX = 0;
-    }
-    
-    //操作
-    playerPositionX -= 5;
-    //キーボード
-    if (DXTK->KeyState->D)
-    {
-        playerPositionX += 10;
-    }
-    if (DXTK->KeyState->A)
-    {
-        playerPositionX -= 10;
-    }
-    if (DXTK->KeyState->W)
-    {
-        playerPositionY -= 10;
-    }
-    if (DXTK->KeyState->S)
-    {
-        playerPositionY += 10;
-    }
-
-    //パッド
-    if (DXTK->GamePadState[0].IsDPadRightPressed())
-    {
-        playerPositionX += 10;
-    }
-    if (DXTK->GamePadState[0].IsDPadLeftPressed())
-    {
-        playerPositionX -= 10;
-    }
-    if (DXTK->GamePadState[0].IsDPadUpPressed())
-    {
-        playerPositionY -= 10;
-    }
-    if (DXTK->GamePadState[0].IsDPadDownPressed())
-    {
-        playerPositionY += 10;
-    }
+    playerControlUpdate(deltaTime);
 
 
     //障害物
@@ -272,4 +226,69 @@ void MainScene::Render()
 
     DXTK->Direct3D9->WaitUpdate();
     DXTK->ExecuteCommandList();
+}
+
+//Update内関数の定義
+
+//背景
+void MainScene::bgMoveUpdate(const float deltaTime)
+{
+    bgPositionX -= bgMoveSpeed * deltaTime;
+    if (bgPositionX <= -2560)
+    {
+        bgPositionX = 0;
+    }
+}
+
+
+//プレイヤー
+void MainScene::playerControlUpdate(const float deltaTime)
+{
+    //移動範囲
+    if (playerPositionX <= playerPositionLeft)
+    {
+        playerPositionX = playerPositionLeft;
+    }
+    if (playerPositionY <= playerPositionTop)
+    {
+        playerPositionY = playerPositionTop;
+    }
+
+    //操作
+    playerPositionX -= 5;
+    //キーボード
+    if (DXTK->KeyState->D)
+    {
+        playerPositionX += 10;
+    }
+    if (DXTK->KeyState->A)
+    {
+        playerPositionX -= 10;
+    }
+    if (DXTK->KeyState->W)
+    {
+        playerPositionY -= 10;
+    }
+    if (DXTK->KeyState->S)
+    {
+        playerPositionY += 10;
+    }
+
+    //パッド
+    if (DXTK->GamePadState[0].IsDPadRightPressed())
+    {
+        playerPositionX += 10;
+    }
+    if (DXTK->GamePadState[0].IsDPadLeftPressed())
+    {
+        playerPositionX -= 10;
+    }
+    if (DXTK->GamePadState[0].IsDPadUpPressed())
+    {
+        playerPositionY -= 10;
+    }
+    if (DXTK->GamePadState[0].IsDPadDownPressed())
+    {
+        playerPositionY += 10;
+    }
 }

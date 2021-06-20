@@ -44,6 +44,8 @@ private:
     //背景
     DX9::SPRITE bgTestSprite;
     float bgPositionX;
+    enum { bgMoveSpeed = 600 };
+
 
     //プレイヤー
     //金魚
@@ -55,8 +57,20 @@ private:
     //鯉
     DX9::SPRITE carpTestSprite;
 
+    enum playerState {
+        goldfishState,
+        catfishState,
+        carpState
+    };
+
     //プレイヤー位置
     float playerPositionX, playerPositionY;
+    enum playerPosition {
+        playerPositionTop = 251,
+        playerPositionBottom,
+        playerPositionRight,
+        playerPositionLeft = 0,
+    };
 
 
     //障害物
@@ -80,4 +94,14 @@ private:
     DX9::SPRITE woodTestSprite;
     float woodPositionX, woodPositionY;
 
+
+private:
+    //Update内関数の定義
+
+    //背景
+    void bgMoveUpdate(const float deltaTime);
+
+
+    //プレイヤー
+    void playerControlUpdate(const float deltaTime);
 };
