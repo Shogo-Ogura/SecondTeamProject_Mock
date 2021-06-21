@@ -26,8 +26,17 @@ void MainScene::Initialize()
 
 
     //プレイヤー
+    //座標
     playerPositionX = 100;
     playerPositionY = 300;
+
+    //状態
+    playerStatus = goldfishState;
+
+
+    //虫(アイテム)
+    wormPositionX = 1500;
+    wormPositionY = 300;
 
 
     //障害物
@@ -81,7 +90,11 @@ void MainScene::LoadAssets()
     //鯉
     carpTestSprite = DX9::Sprite::CreateFromFile(DXTK->Device9, L"carpTestSprite.png");
 
-    
+
+    //虫(アイテム)
+    wormTestSprite = DX9::Sprite::CreateFromFile(DXTK->Device9, L"wormTestSprite.png");
+
+
     //障害物
     //鳥
     birdTestSprite = DX9::Sprite::CreateFromFile(DXTK->Device9, L"kingfisherTestSprite.png");
@@ -92,12 +105,8 @@ void MainScene::LoadAssets()
     //岩(小)
     smallRockTestSprite = DX9::Sprite::CreateFromFile(DXTK->Device9, L"smallRockTestSprite.png");
 
-    //虫
-    wormTestSprite = DX9::Sprite::CreateFromFile(DXTK->Device9, L"wormTestSprite.png");
-
     //木
     woodTestSprite = DX9::Sprite::CreateFromFile(DXTK->Device9, L"woodTestSprite.png");
-
 
 }
 
@@ -139,16 +148,34 @@ NextScene MainScene::Update(const float deltaTime)
     
 
     //プレイヤー
-    playerControlUpdate(deltaTime);
+    //移動範囲
+    playerMoveRangeUpdate(deltaTime);
+
+    //自動移動
+    playerAutoMoveUpdate(deltaTime);
+
+    //キーボード操作
+    playerControlKeyboardUpdate(deltaTime);
+
+    //パッド操作
+    playerControlGamepadUpdate(deltaTime);
+
+
+    //虫(アイテム)
+    //移動
+    wormMoveUpdate(deltaTime);
+
+    //当たり判定
+    wormCollisionDetectionUpdate(deltaTime);
 
 
     //障害物
     //岩
-    bigRockPositionX -= 10;
+   /* bigRockPositionX -= 10;
     if (bigRockPositionX <= 500)
     {
         bigRockPositionX = 1500;
-    }
+    }*/
 
     //当たり判定
     /*if (!(playerPositionX > bigRockPositionX + 237.0f || playerPositionX + 265.0f < bigRockPositionX ||
@@ -180,11 +207,15 @@ void MainScene::Render()
 
     //プレイヤー
     //金魚
-    DX9::SpriteBatch->DrawSimple(goldfishTestSprite.Get(), SimpleMath::Vector3(0, 0, 0));
+    DX9::SpriteBatch->DrawSimple(goldfishTestSprite.Get(), SimpleMath::Vector3(0, 0, -5));
     //ナマズ
-    DX9::SpriteBatch->DrawSimple(catfishTestSprite.Get(), SimpleMath::Vector3(playerPositionX, playerPositionY, 0));
+    DX9::SpriteBatch->DrawSimple(catfishTestSprite.Get(), SimpleMath::Vector3(playerPositionX, playerPositionY, -5));
     //鯉
-    DX9::SpriteBatch->DrawSimple(carpTestSprite.Get(), SimpleMath::Vector3(0, 0, 0));
+    DX9::SpriteBatch->DrawSimple(carpTestSprite.Get(), SimpleMath::Vector3(0, 0, -5));
+
+
+    //虫(アイテム)
+    DX9::SpriteBatch->DrawSimple(wormTestSprite.Get(), SimpleMath::Vector3(wormPositionX, wormPositionY, 0));
 
 
     //障害物
@@ -197,8 +228,6 @@ void MainScene::Render()
     //岩(小)
     DX9::SpriteBatch->DrawSimple(smallRockTestSprite.Get(), SimpleMath::Vector3(0, 0, 0));
 
-    //虫
-    DX9::SpriteBatch->DrawSimple(wormTestSprite.Get(), SimpleMath::Vector3(0, 0, 0));
 
     //木
     DX9::SpriteBatch->DrawSimple(woodTestSprite.Get(), SimpleMath::Vector3(0, 0, 0));
@@ -230,11 +259,11 @@ void MainScene::Render()
 
 //Update内関数の定義
 
-//背景
+//背景ループ
 void MainScene::bgMoveUpdate(const float deltaTime)
 {
     bgPositionX -= bgMoveSpeed * deltaTime;
-    if (bgPositionX <= -2560)
+    if (bgPositionX <= -bgResetPosition)
     {
         bgPositionX = 0;
     }
@@ -242,53 +271,132 @@ void MainScene::bgMoveUpdate(const float deltaTime)
 
 
 //プレイヤー
-void MainScene::playerControlUpdate(const float deltaTime)
+//移動可能範囲
+void MainScene::playerMoveRangeUpdate(const float deltaTime)
 {
-    //移動範囲
-    if (playerPositionX <= playerPositionLeft)
+    
+    if (playerPositionX <= playerMoveRangeLeft)
     {
-        playerPositionX = playerPositionLeft;
+        playerPositionX = playerMoveRangeLeft;
     }
-    if (playerPositionY <= playerPositionTop)
+    if (playerPositionX >= playerMoveRangeRight)
     {
-        playerPositionY = playerPositionTop;
+        playerPositionX = playerMoveRangeRight;
     }
+    if (playerPositionY <= playerMoveRangeTop)
+    {
+        playerPositionY = playerMoveRangeTop;
+    }
+    if (playerPositionY >= playerMoveRangeBottom)
+    {
+        playerPositionY = playerMoveRangeBottom;
+    }
+}
 
-    //操作
-    playerPositionX -= 5;
-    //キーボード
+//自動移動
+void MainScene::playerAutoMoveUpdate(const float deltaTime)
+{
+    playerPositionX -= playerAutoMoveSpeed * deltaTime;
+}
+
+//キーボード操作
+void MainScene::playerControlKeyboardUpdate(const float deltaTime)
+{
     if (DXTK->KeyState->D)
     {
-        playerPositionX += 10;
+        playerPositionX += playerMoveSpeedRight * deltaTime;
     }
     if (DXTK->KeyState->A)
     {
-        playerPositionX -= 10;
+        playerPositionX -= playerMoveSpeedLeft * deltaTime;
     }
     if (DXTK->KeyState->W)
     {
-        playerPositionY -= 10;
+        playerPositionY -= playerMoveSpeedUp * deltaTime;
     }
     if (DXTK->KeyState->S)
     {
-        playerPositionY += 10;
+        playerPositionY += playerMoveSpeedDown * deltaTime;
     }
+}
 
-    //パッド
+//パッド操作
+void MainScene::playerControlGamepadUpdate(const float deltaTime)
+{
     if (DXTK->GamePadState[0].IsDPadRightPressed())
     {
-        playerPositionX += 10;
+        playerPositionX += playerMoveSpeedRight * deltaTime;
     }
     if (DXTK->GamePadState[0].IsDPadLeftPressed())
     {
-        playerPositionX -= 10;
+        playerPositionX -= playerMoveSpeedLeft * deltaTime;
     }
     if (DXTK->GamePadState[0].IsDPadUpPressed())
     {
-        playerPositionY -= 10;
+        playerPositionY -= playerMoveSpeedUp * deltaTime;
     }
     if (DXTK->GamePadState[0].IsDPadDownPressed())
     {
-        playerPositionY += 10;
+        playerPositionY += playerMoveSpeedDown * deltaTime;
     }
+}
+
+
+//虫(アイテム)
+//移動
+void MainScene::wormMoveUpdate(const float deltaTime)
+{
+    wormPositionX -= 350 * deltaTime;
+    //ループ
+    if (wormPositionX <= 200)
+    {
+        wormPositionX = 1500;
+    }
+}
+
+//当たり判定
+void MainScene::wormCollisionDetectionUpdate(const float deltaTime)
+{
+    if (CollisionDetection(RectWH(playerPositionX, playerPositionY, catfishX, catfishY), RectWH(wormPositionX, wormPositionY, 80, 70)))
+    {
+        playerStatus = catfishState;
+    }
+
+    if (playerStatus == catfishState)
+        bgPositionX = 5000;
+}
+
+
+//障害物
+//当たり判定
+//鳥
+void MainScene::birdCollisionDetectionUpdate(const float deltaTime)
+{
+
+}
+//岩(大)
+void MainScene::bigRockCollisionDetectionUpdate(const float deltaTime)
+{
+
+}
+//岩(小)
+void MainScene::smallRockCollisionDetectionUpdate(const float deltaTime)
+{
+
+}
+//木
+void MainScene::woodCollisionDetectionUpdate(const float deltaTime)
+{
+
+}
+
+
+//当たり判定関数
+bool MainScene::CollisionDetection(Rect& rect1, Rect& rect2) {
+
+    if (rect1.left > rect2.right || rect1.right < rect2.left ||
+        rect1.top > rect2.bottom || rect1.bottom < rect2.top) {
+        return false;
+    }
+    return true;
 }

@@ -44,7 +44,12 @@ private:
     //背景
     DX9::SPRITE bgTestSprite;
     float bgPositionX;
+    
+    //スクロール速度
     enum { bgMoveSpeed = 600 };
+
+    //背景ループ位置
+    enum { bgResetPosition = 2560 };
 
 
     //プレイヤー
@@ -57,20 +62,54 @@ private:
     //鯉
     DX9::SPRITE carpTestSprite;
 
+    //サイズ
+    enum {
+        //金魚
+        goldfishX = 110,
+        goldfishY = 70,
+        //ナマズ
+        catfishX = 150,
+        catfishY = 110,
+        //鯉
+        carpX = 200,
+        carpY = 150
+    };
+
+    //プレイヤー状態
+    int playerStatus;
+
     enum playerState {
         goldfishState,
         catfishState,
         carpState
     };
 
-    //プレイヤー位置
+    //プレイヤー座標
     float playerPositionX, playerPositionY;
-    enum playerPosition {
-        playerPositionTop = 251,
-        playerPositionBottom,
-        playerPositionRight,
-        playerPositionLeft = 0,
+
+    //プレイヤー自動移動速度
+    enum { playerAutoMoveSpeed = 300 };
+
+    //プレイヤー移動速度
+    enum {
+        playerMoveSpeedUp = 550,
+        playerMoveSpeedDown = 550,
+        playerMoveSpeedRight = 550,
+        playerMoveSpeedLeft = 550
     };
+
+    //プレイヤー移動範囲
+    enum playerMoveRange {
+        playerMoveRangeTop = 251,
+        playerMoveRangeBottom = 720,
+        playerMoveRangeRight = 1280,
+        playerMoveRangeLeft = 0,
+    };
+
+
+    //虫(アイテム)
+    DX9::SPRITE wormTestSprite;
+    float wormPositionX, wormPositionY;
 
 
     //障害物
@@ -86,10 +125,6 @@ private:
     DX9::SPRITE smallRockTestSprite;
     float smallRockPositionX, smallRockPositionY;
 
-    //虫
-    DX9::SPRITE wormTestSprite;
-    float wormPositionX, wormPositionY;
-
     //木
     DX9::SPRITE woodTestSprite;
     float woodPositionX, woodPositionY;
@@ -103,5 +138,42 @@ private:
 
 
     //プレイヤー
-    void playerControlUpdate(const float deltaTime);
+    //移動可能範囲
+    void playerMoveRangeUpdate(const float deltaTime);
+    
+    //自動移動
+    void playerAutoMoveUpdate(const float deltaTime);
+    
+    //キーボード操作
+    void playerControlKeyboardUpdate(const float deltaTime);
+   
+    //パッド操作
+    void playerControlGamepadUpdate(const float deltaTime);
+
+
+    //虫(アイテム)
+    //移動
+    void wormMoveUpdate(const float deltaTime);
+    
+    //当たり判定
+    void wormCollisionDetectionUpdate(const float deltaTime);
+
+
+    //障害物
+    //移動
+
+    //当たり判定
+    //鳥 
+    void birdCollisionDetectionUpdate(const float deltaTime);
+    //岩(大)
+    void bigRockCollisionDetectionUpdate(const float deltaTime);
+    //岩(小)
+    void smallRockCollisionDetectionUpdate(const float deltaTime);
+    //木
+    void woodCollisionDetectionUpdate(const float deltaTime);
+
+
+
+    //当たり判定関数
+    bool CollisionDetection(Rect& rect1, Rect& rect2);
 };
