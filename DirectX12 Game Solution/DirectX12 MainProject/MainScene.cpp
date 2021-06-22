@@ -25,25 +25,37 @@ void MainScene::Initialize()
     bgPositionX = 0.0f;
 
 
+    //ゲージ段階
+    gaugeStage = firstStage;
+
+
     //プレイヤー
     //座標
-    playerPositionX = 100;
-    playerPositionY = 300;
+    playerPositionX = 100.0f;
+    playerPositionY = 300.0f;
+
+    //無敵時間
+    carpTime = 0.0f;
 
     //状態
     playerStatus = goldfishState;
 
 
     //虫(アイテム)
-    wormPositionX = 1500;
-    wormPositionY = 300;
+    wormPositionX = 1500.0f;
+    wormPositionY = 300.0f;
 
 
     //障害物
     //岩
-    bigRockPositionX = 1500;
-    bigRockPositionY = 300;
+    bigRockPositionX = 1500.0f;
+    bigRockPositionY = 300.0f;
 
+
+    //UI
+    //ゲージ
+    gaugeWidth = 140;
+    
 }
 
 // Allocate all memory the Direct3D and Direct2D resources.
@@ -108,6 +120,17 @@ void MainScene::LoadAssets()
     //木
     woodTestSprite = DX9::Sprite::CreateFromFile(DXTK->Device9, L"woodTestSprite.png");
 
+
+    //UI
+    //ゲージ
+    gaugeTestSprite = DX9::Sprite::CreateFromFile(DXTK->Device9, L"gaugeTestSprite.png");
+    gaugeBgTestSprite = DX9::Sprite::CreateFromFile(DXTK->Device9, L"gaugeBgTestSprite.png");
+
+
+    //デバッグ用
+    playerStatusFont = DX9::SpriteFont::CreateFromFontName(DXTK->Device9, L"ＭＳ Ｐ明朝", 20);
+    gaugeStageFont = DX9::SpriteFont::CreateFromFontName(DXTK->Device9, L"ＭＳ Ｐ明朝", 20);
+
 }
 
 // Releasing resources required for termination.
@@ -145,11 +168,18 @@ NextScene MainScene::Update(const float deltaTime)
 
     //背景
     bgMoveUpdate(deltaTime);
+
+
+    //状態遷移割当
+    gaugePlayerStateAssignUpdate();
+    
+    //状態遷移
+    gaugePlayerStateUpdate(deltaTime);
     
 
     //プレイヤー
     //移動範囲
-    playerMoveRangeUpdate(deltaTime);
+    playerMoveRangeUpdate();
 
     //自動移動
     playerAutoMoveUpdate(deltaTime);
@@ -165,25 +195,10 @@ NextScene MainScene::Update(const float deltaTime)
     //移動
     wormMoveUpdate(deltaTime);
 
-    //当たり判定
-    wormCollisionDetectionUpdate(deltaTime);
-
 
     //障害物
     //岩
-   /* bigRockPositionX -= 10;
-    if (bigRockPositionX <= 500)
-    {
-        bigRockPositionX = 1500;
-    }*/
-
-    //当たり判定
-    /*if (!(playerPositionX > bigRockPositionX + 237.0f || playerPositionX + 265.0f < bigRockPositionX ||
-        playerPositionY > bigRockPositionY + 200.0f || playerPositionY + 164.0f < bigRockPositionY)) 
-    {
-        bigRockPositionX = 1500;
-    }*/
-
+   
 
     return NextScene::Continue;
 }
@@ -207,11 +222,17 @@ void MainScene::Render()
 
     //プレイヤー
     //金魚
-    DX9::SpriteBatch->DrawSimple(goldfishTestSprite.Get(), SimpleMath::Vector3(0, 0, -5));
+    if (gaugeStage == firstStage || gaugeStage == secondStage) {
+        DX9::SpriteBatch->DrawSimple(goldfishTestSprite.Get(), SimpleMath::Vector3(playerPositionX, playerPositionY, -5));
+    }
     //ナマズ
-    DX9::SpriteBatch->DrawSimple(catfishTestSprite.Get(), SimpleMath::Vector3(playerPositionX, playerPositionY, -5));
+    if (gaugeStage == thirdStage || gaugeStage == forthStage) {
+        DX9::SpriteBatch->DrawSimple(catfishTestSprite.Get(), SimpleMath::Vector3(playerPositionX, playerPositionY, -5));
+    }
     //鯉
-    DX9::SpriteBatch->DrawSimple(carpTestSprite.Get(), SimpleMath::Vector3(0, 0, -5));
+    if (gaugeStage == fifthStage) {
+        DX9::SpriteBatch->DrawSimple(carpTestSprite.Get(), SimpleMath::Vector3(playerPositionX, playerPositionY, -5));
+    }
 
 
     //虫(アイテム)
@@ -228,10 +249,20 @@ void MainScene::Render()
     //岩(小)
     DX9::SpriteBatch->DrawSimple(smallRockTestSprite.Get(), SimpleMath::Vector3(0, 0, 0));
 
-
     //木
     DX9::SpriteBatch->DrawSimple(woodTestSprite.Get(), SimpleMath::Vector3(0, 0, 0));
 
+
+    //UI
+    //ゲージ
+    DX9::SpriteBatch->DrawSimple(gaugeTestSprite.Get(), SimpleMath::Vector3(100, 50, 8),
+        RectWH(0.0f, 0.0f, gaugeWidth, 100.0f));
+    DX9::SpriteBatch->DrawSimple(gaugeBgTestSprite.Get(), SimpleMath::Vector3(100, 50, 9));
+
+
+    //デバッグ用
+    DX9::SpriteBatch->DrawString(playerStatusFont.Get(), SimpleMath::Vector2(0, 670), DX9::Colors::RGBA(0, 0, 0, 255), L"playerStatus:%d", playerStatus+1);
+    //DX9::SpriteBatch->DrawString(gaugeStageFont.Get(), SimpleMath::Vector2(230, 670), DX9::Colors::RGBA(0, 0, 0, 255), L"gaugeStage:%d", gaugeStage+1);
 
 
     DX9::SpriteBatch->End();          // 手順6
@@ -270,26 +301,113 @@ void MainScene::bgMoveUpdate(const float deltaTime)
 }
 
 
+//状態遷移割当
+void MainScene::gaugePlayerStateAssignUpdate()
+{
+    if (gaugeStage == firstStage || gaugeStage == secondStage) {
+        playerStatus = goldfishState;
+    }
+    if (gaugeStage == thirdStage || gaugeStage == forthStage) {
+        playerStatus = catfishState;
+    }
+    if (gaugeStage == fifthStage) {
+        playerStatus = carpState;
+    }
+}
+
+//状態遷移
+void MainScene::gaugePlayerStateUpdate(const float deltaTime)
+{
+    switch (gaugeStage) {
+    case firstStage:
+        gaugeWidth = firstStage;
+        if (wormCollisionDetectionUpdate())
+        {
+            gaugeStage = secondStage;
+            wormPositionX = 1500;
+        }
+        break;
+    case secondStage:
+        gaugeWidth = secondStage;
+        if (wormCollisionDetectionUpdate())
+        {
+            gaugeStage = thirdStage;
+            wormPositionX = 1500;
+        }
+        break;
+    case thirdStage:
+        gaugeWidth = thirdStage;
+        if (wormCollisionDetectionUpdate())
+        {
+            gaugeStage = forthStage;
+            wormPositionX = 1500;
+        }
+        break;
+    case forthStage:
+        gaugeWidth = forthStage;
+        if (wormCollisionDetectionUpdate())
+        {
+            gaugeStage = fifthStage;
+            wormPositionX = 1500;
+        }
+        break;
+    case fifthStage:
+        gaugeWidth = fifthStage;
+        carpTime += deltaTime;
+        if (carpTime >= 3.0f) {
+            gaugeStage = thirdStage;
+            carpTime = 0.0f;
+        }
+    }
+}
+
+
 //プレイヤー
 //移動可能範囲
-void MainScene::playerMoveRangeUpdate(const float deltaTime)
+void MainScene::playerMoveRangeUpdate()
 {
-    
-    if (playerPositionX <= playerMoveRangeLeft)
-    {
-        playerPositionX = playerMoveRangeLeft;
-    }
-    if (playerPositionX >= playerMoveRangeRight)
-    {
-        playerPositionX = playerMoveRangeRight;
-    }
+    //上・左
     if (playerPositionY <= playerMoveRangeTop)
     {
         playerPositionY = playerMoveRangeTop;
     }
-    if (playerPositionY >= playerMoveRangeBottom)
+    if (playerPositionX <= playerMoveRangeLeft)
     {
-        playerPositionY = playerMoveRangeBottom;
+        playerPositionX = playerMoveRangeLeft;
+    }
+    //右・下
+    //金魚
+    if (playerStatus == goldfishState) {
+        if (playerPositionX >= playerMoveRangeRight - goldfishScaleX)
+        {
+            playerPositionX = playerMoveRangeRight - goldfishScaleX;
+        }
+        if (playerPositionY >= playerMoveRangeBottom - goldfishScaleY)
+        {
+            playerPositionY = playerMoveRangeBottom - goldfishScaleY;
+        }
+    }
+    //ナマズ
+    if (playerStatus == catfishState) {
+        if (playerPositionX >= playerMoveRangeRight - catfishScaleX)
+        {
+            playerPositionX = playerMoveRangeRight - catfishScaleX;
+        }
+        if (playerPositionY >= playerMoveRangeBottom - catfishScaleY)
+        {
+            playerPositionY = playerMoveRangeBottom - catfishScaleY;
+        }
+    }
+    //鯉
+    if (playerStatus == carpState) {
+        if (playerPositionX >= playerMoveRangeRight - carpScaleX)
+        {
+            playerPositionX = playerMoveRangeRight - carpScaleX;
+        }
+        if (playerPositionY >= playerMoveRangeBottom - carpScaleY)
+        {
+            playerPositionY = playerMoveRangeBottom - carpScaleY;
+        }
     }
 }
 
@@ -323,7 +441,8 @@ void MainScene::playerControlKeyboardUpdate(const float deltaTime)
 //パッド操作
 void MainScene::playerControlGamepadUpdate(const float deltaTime)
 {
-    if (DXTK->GamePadState[0].IsDPadRightPressed())
+    //十字キー操作
+    /*if (DXTK->GamePadState[0].IsDPadRightPressed())
     {
         playerPositionX += playerMoveSpeedRight * deltaTime;
     }
@@ -338,7 +457,11 @@ void MainScene::playerControlGamepadUpdate(const float deltaTime)
     if (DXTK->GamePadState[0].IsDPadDownPressed())
     {
         playerPositionY += playerMoveSpeedDown * deltaTime;
-    }
+    }*/
+
+    //スティック操作
+    playerPositionX += playerMoveSpeedX * DXTK->GamePadState[0].thumbSticks.leftX + deltaTime;
+    playerPositionY -= playerMoveSpeedY * DXTK->GamePadState[0].thumbSticks.leftY * deltaTime;
 }
 
 
@@ -347,45 +470,39 @@ void MainScene::playerControlGamepadUpdate(const float deltaTime)
 void MainScene::wormMoveUpdate(const float deltaTime)
 {
     wormPositionX -= 350 * deltaTime;
+
     //ループ
-    if (wormPositionX <= 200)
+    if (wormPositionX <= -200)
     {
         wormPositionX = 1500;
     }
 }
 
-//当たり判定
-void MainScene::wormCollisionDetectionUpdate(const float deltaTime)
+//虫当たり判定
+bool MainScene::wormCollisionDetectionUpdate()
 {
-    if (CollisionDetection(RectWH(playerPositionX, playerPositionY, catfishX, catfishY), RectWH(wormPositionX, wormPositionY, 80, 70)))
-    {
-        playerStatus = catfishState;
+    switch (playerStatus) {
+    case goldfishState:
+        if (CollisionDetection(RectWH(playerPositionX, playerPositionY, goldfishScaleX, goldfishScaleY), RectWH(wormPositionX, wormPositionY, wormScaleX, wormScaleY)))
+            return true;
+        break;
+    case catfishState:
+        if (CollisionDetection(RectWH(playerPositionX, playerPositionY, catfishScaleX, catfishScaleY), RectWH(wormPositionX, wormPositionY, wormScaleX, wormScaleY)))
+            return true;
+        break;
+    case carpState:
+        if (CollisionDetection(RectWH(playerPositionX, playerPositionY, carpScaleX, carpScaleY), RectWH(wormPositionX, wormPositionY, wormScaleX, wormScaleY)))
+            return true;
+        break;
     }
 
-    if (playerStatus == catfishState)
-        bgPositionX = 5000;
+    return false;
 }
 
 
 //障害物
-//当たり判定
-//鳥
-void MainScene::birdCollisionDetectionUpdate(const float deltaTime)
-{
-
-}
-//岩(大)
-void MainScene::bigRockCollisionDetectionUpdate(const float deltaTime)
-{
-
-}
-//岩(小)
-void MainScene::smallRockCollisionDetectionUpdate(const float deltaTime)
-{
-
-}
-//木
-void MainScene::woodCollisionDetectionUpdate(const float deltaTime)
+//障害物当たり判定
+bool MainScene::birdCollisionDetectionUpdate()
 {
 
 }
