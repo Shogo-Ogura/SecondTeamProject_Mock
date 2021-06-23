@@ -261,7 +261,7 @@ void MainScene::Render()
 
 
     //デバッグ用
-    DX9::SpriteBatch->DrawString(playerStatusFont.Get(), SimpleMath::Vector2(0, 670), DX9::Colors::RGBA(0, 0, 0, 255), L"playerStatus:%d", playerStatus+1);
+    //DX9::SpriteBatch->DrawString(playerStatusFont.Get(), SimpleMath::Vector2(0, 670), DX9::Colors::RGBA(0, 0, 0, 255), L"playerStatus:%d", playerStatus+1);
     //DX9::SpriteBatch->DrawString(gaugeStageFont.Get(), SimpleMath::Vector2(230, 670), DX9::Colors::RGBA(0, 0, 0, 255), L"gaugeStage:%d", gaugeStage+1);
 
 
@@ -481,17 +481,32 @@ void MainScene::wormMoveUpdate(const float deltaTime)
 //虫当たり判定
 bool MainScene::wormCollisionDetectionUpdate()
 {
-    switch (playerStatus) {
-    case goldfishState:
-        if (CollisionDetection(RectWH(playerPositionX, playerPositionY, goldfishScaleX, goldfishScaleY), RectWH(wormPositionX, wormPositionY, wormScaleX, wormScaleY)))
+    if (PlayerCollisionDetection(RectWH(wormPositionX, wormPositionY, wormScaleX, wormScaleY)))
+        return true;
+    else
+        return false;
+}
+
+
+//障害物
+//障害物当たり判定
+bool MainScene::obstacleCollisionDetectionUpdate()
+{
+    switch (obstacleStatus) {
+    case birdState:
+        if (PlayerCollisionDetection(RectWH(birdPositionX, birdPositionY, birdScaleX, birdScaleY)))
             return true;
         break;
-    case catfishState:
-        if (CollisionDetection(RectWH(playerPositionX, playerPositionY, catfishScaleX, catfishScaleY), RectWH(wormPositionX, wormPositionY, wormScaleX, wormScaleY)))
+    case bigRockState:
+        if (PlayerCollisionDetection(RectWH(bigRockPositionX, bigRockPositionY, bigRockScaleX, bigRockScaleY)))
             return true;
         break;
-    case carpState:
-        if (CollisionDetection(RectWH(playerPositionX, playerPositionY, carpScaleX, carpScaleY), RectWH(wormPositionX, wormPositionY, wormScaleX, wormScaleY)))
+    case smallRockState:
+        if (PlayerCollisionDetection(RectWH(smallRockPositionX, smallRockPositionY, smallRockScaleX, smallRockScaleY)))
+            return true;
+        break;
+    case woodState:
+        if (PlayerCollisionDetection(RectWH(woodPositionX, woodPositionY, woodScaleX, woodScaleY)))
             return true;
         break;
     }
@@ -500,20 +515,35 @@ bool MainScene::wormCollisionDetectionUpdate()
 }
 
 
-//障害物
-//障害物当たり判定
-bool MainScene::birdCollisionDetectionUpdate()
-{
-
-}
-
-
 //当たり判定関数
-bool MainScene::CollisionDetection(Rect& rect1, Rect& rect2) {
+//ベース当たり判定
+bool MainScene::collisionDetectionBase(Rect& rect1, Rect& rect2) {
 
     if (rect1.left > rect2.right || rect1.right < rect2.left ||
         rect1.top > rect2.bottom || rect1.bottom < rect2.top) {
         return false;
     }
     return true;
+}
+
+//プレイヤー範囲設定済み当たり判定
+bool MainScene::PlayerCollisionDetection(Rect& rect2)
+{
+    Rect goldfishRange = RectWH(playerPositionX, playerPositionY, goldfishScaleX, goldfishScaleY);
+    Rect catfishRange = RectWH(playerPositionX, playerPositionY, catfishScaleX, catfishScaleY);
+    Rect carpRange = RectWH(playerPositionX, playerPositionY, carpScaleX, carpScaleY);
+    
+
+    switch (playerStatus) {
+    case goldfishState:
+        return collisionDetectionBase(goldfishRange, rect2);
+        break;
+    case catfishState:
+        return collisionDetectionBase(catfishRange, rect2);
+        break;
+    case carpState:
+        return collisionDetectionBase(carpRange, rect2);
+        break;
+    }
+    
 }

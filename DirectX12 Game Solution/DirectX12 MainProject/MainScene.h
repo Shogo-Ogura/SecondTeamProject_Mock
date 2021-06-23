@@ -5,6 +5,7 @@
 #pragma once
 
 #include "Scene.h"
+#include<random>
 
 using Microsoft::WRL::ComPtr;
 using std::unique_ptr;
@@ -139,23 +140,24 @@ private:
     float woodPositionX, woodPositionY;
 
     //障害物サイズ
-    enum ObstacleScale {
+    enum obstacleScale {
         //鳥
         birdScaleX = 230,
-        birdScaleY100,
+        birdScaleY = 100,
         //岩(大)
         bigRockScaleX = 230,
-        bigRockScaleY210,
+        bigRockScaleY = 210,
         //岩(小)
         smallRockScaleX = 40,
-        smallRockScaleY50,
+        smallRockScaleY = 50,
         //木
         woodScaleX = 230,
         woodScaleY = 130
     };
 
     //障害物状態
-    enum ObstacleState {
+    int obstacleStatus;
+    enum obstacleState {
         birdState,
         bigRockState,
         smallRockState,
@@ -223,12 +225,14 @@ private:
     //障害物移動
 
     //障害物当たり判定 
-    bool birdCollisionDetectionUpdate();
+    bool obstacleCollisionDetectionUpdate();
 
 
     //当たり判定関数
-    bool CollisionDetection(Rect& rect1, Rect& rect2);
+    //ベース当たり判定
+    bool collisionDetectionBase(Rect& rect1, Rect& rect2);
 
-
+    //プレイヤー範囲設定済み当たり判定
+    bool PlayerCollisionDetection(Rect& rect2);
 
 };
